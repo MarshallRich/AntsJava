@@ -33,10 +33,27 @@ public class Main extends Application {
         return ants;
     }
 
+
+
+    Ant aggravateAnt(Ant ant) {
+        ArrayList <Ant> antsAgg = ants.stream()
+                .filter(a -> (Math.abs(ant.x - a.x) < 10)&&(Math.abs(ant.y - a.y) < 10))
+                .collect(Collectors.toCollection(ArrayList<Ant>::new));
+
+        if (antsAgg.size() > 1) {
+            ant.color = Color.RED;
+            return ant;
+        }
+        else {
+            ant.color = Color.BLACK;
+            return ant;
+        }
+    }
+
     void drawAnts(GraphicsContext context) {
         context.clearRect(0, 0, WIDTH, HEIGHT);
         for (Ant ant : ants) {
-            context.setFill(Color.BLACK);
+            context.setFill(ant.color);
             context.fillOval(ant.x, ant.y, 5, 5);
         }
     }
@@ -60,6 +77,7 @@ public class Main extends Application {
 
     void updateAnts() {
         ants = ants.parallelStream()
+                .map(this::aggravateAnt)
                 .map(this::moveAnt)
                 .collect(Collectors.toCollection(ArrayList<Ant>::new));
     }
@@ -89,6 +107,7 @@ public class Main extends Application {
             public void handle(long now) {
                 fpsLabel.setText(fps(now) + "");
                 lastTimestamp =now;
+
                 updateAnts();
                 drawAnts(context);
             }
